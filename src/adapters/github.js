@@ -194,7 +194,7 @@ class GitHub extends PjaxAdapter {
           let branchNameToTry = '';
           let foundBranch = false;
 
-          // Verify the branch name by comparing with all available branches and tags
+          // Verify the branch / tag name by comparing with all branches and tags from the repo
           typeIdWithPath.forEach((typeIdPart, index) => {
             if (foundBranch) return;
 
@@ -203,7 +203,9 @@ class GitHub extends PjaxAdapter {
             foundBranch = gitSnapshotNames.find((name) => (name === branchNameToTry));
           })
 
-          if (foundBranch) repo.branch = branchNameToTry;
+          if (foundBranch) {
+            repo.branch = branchNameToTry;
+          }
 
           cb(null, repo);
         }
