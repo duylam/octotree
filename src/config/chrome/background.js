@@ -1,44 +1,7 @@
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.status !== 'loading') {
-    return;
-  }
-
-  chrome.tabs.executeScript(
-    tabId,
-    {
-      code: 'var injected = window.octotreeInjected; window.octotreeInjected = true; injected;',
-      runAt: 'document_start'
-    },
-    (res) => {
-      // If page isn't in the permission list (lastError is set) or injected is true, do nothing
-      if (chrome.runtime.lastError || res[0]) {
-        return;
-      }
-
-      const cssFiles = ['jstree.css', 'file-icons.css', 'octotree.css'];
-
-      const jsFiles = [
-        'file-icons.js',
-        'jquery.js',
-        'jquery-ui.js',
-        'jstree.js',
-        'keymaster.js',
-        'ondemand.js',
-        'octotree.js'
-      ];
-
-      eachTask([
-        (cb) => eachItem(cssFiles, inject('insertCSS'), cb),
-        (cb) => eachItem(jsFiles, inject('executeScript'), cb)
-      ]);
-
-      function inject(fn) {
-        return (file, cb) => {
-          chrome.tabs[fn](tabId, {file: file, runAt: 'document_start'}, cb);
-        };
-      }
-    }
-  );
+// Octotree needs to start as soon as the HTML document is loaded in order to give smooth
+// experience for users. So the event chrome.webNavigation.onCommitted is used for initializing
+chrome.webNavigation.onCommitted.addListener(initOctotree, {
+  url: [{hostEquals: '*'}] // '*' for supporting Github Enterprise
 });
 
 chrome.runtime.onMessage.addListener((req, sender, sendRes) => {
@@ -83,6 +46,31 @@ chrome.runtime.onMessage.addListener((req, sender, sendRes) => {
   return handler[req.type]();
 });
 
+function initOctotree(data) {
+  const cssFiles = ['jstree.css', 'file-icons.css', 'octotree.css'];
+
+  const jsFiles = [
+    'file-icons.js',
+    'jquery.js',
+    'jquery-ui.js',
+    'jstree.js',
+    'keymaster.js',
+    'ondemand.js',
+    'octotree.js'
+  ];
+
+  eachTask([
+    (cb) => eachItem(cssFiles, inject('insertCSS'), cb),
+    (cb) => eachItem(jsFiles, inject('executeScript'), cb)
+  ]);
+
+  function inject(fn) {
+    return (file, cb) => {
+      chrome.tabs[fn](data.tabId, {file: file, runAt: 'document_start'}, cb);
+    };
+  }
+}
+
 function eachTask(tasks, done) {
   (function next(index = 0) {
     if (index === tasks.length) {
@@ -97,5 +85,6 @@ function eachItem(arr, iter, done) {
   const tasks = arr.map((item) => {
     return (cb) => iter(item, cb);
   });
+
   return eachTask(tasks, done);
 }
