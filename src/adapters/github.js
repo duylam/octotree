@@ -40,9 +40,6 @@ const GH_HEADER = '.js-header-wrapper > header';
 const GH_RAW_CONTENT = 'body > pre';
 
 class GitHub extends PjaxAdapter {
-  constructor(store) {
-    super(store);
-  }
 
   // @override
   init($sidebar) {
@@ -136,7 +133,7 @@ class GitHub extends PjaxAdapter {
     // Check if we should show in non-code pages
     const isPR = type === 'pull';
     const isCodePage = !type || isPR || ['tree', 'blob', 'commit'].indexOf(type) >= 0;
-    const showInNonCodePage = this.store.get(STORE.NONCODE);
+    const showInNonCodePage = BROWSER_STORAGE.get(STORE.NONCODE);
     if (!showInNonCodePage && !isCodePage) {
       return cb();
     }
@@ -157,7 +154,7 @@ class GitHub extends PjaxAdapter {
       // Get default branch from cache
       this._defaultBranch[username + '/' + reponame];
 
-    const showOnlyChangedInPR = this.store.get(STORE.PR);
+    const showOnlyChangedInPR = BROWSER_STORAGE.get(STORE.PR);
     const pullNumber = isPR && showOnlyChangedInPR ? typeId : null;
     const repo = {username, reponame, branch, pullNumber};
     if (repo.branch) {

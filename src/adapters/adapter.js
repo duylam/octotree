@@ -1,8 +1,7 @@
 class Adapter {
-  constructor(deps, store) {
+  constructor(deps) {
     deps.forEach((dep) => window[dep]());
     this._defaultBranch = {};
-    this.store = store;
   }
 
   /**
@@ -66,7 +65,7 @@ class Adapter {
 
             // @ifdef SUPPORT_FILE_ICONS
             if (type === 'blob') {
-              if (this.store.get(STORE.ICONS)) {
+              if (BROWSER_STORAGE.get(STORE.ICONS)) {
                 const className = FileIcons.getClassWithColor(name);
                 item.icon += ' ' + (className || 'file-generic');
               } else {

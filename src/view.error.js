@@ -1,6 +1,5 @@
 class ErrorView {
-  constructor($dom, store) {
-    this.store = store;
+  constructor($dom) {
     this.$view = $dom.find('.octotree_errorview').submit(this._saveToken.bind(this));
   }
 
@@ -8,7 +7,7 @@ class ErrorView {
     const $token = this.$view.find('input[name="token"]');
     const $submit = this.$view.find('button[type="submit"]');
     const $help = $submit.next();
-    const token = this.store.get(STORE.TOKEN);
+    const token = BROWSER_STORAGE.get(STORE.TOKEN);
 
     this.$view.find('.octotree_view_header').html(err.error);
     this.$view.find('.message').html(err.message);
@@ -32,12 +31,12 @@ class ErrorView {
 
     const $error = this.$view.find('.error').text('');
     const $token = this.$view.find('[name="token"]');
-    const oldToken = this.store.get(STORE.TOKEN);
+    const oldToken = BROWSER_STORAGE.get(STORE.TOKEN);
     const newToken = $token.val();
 
     if (!newToken) return $error.text('Token is required');
 
-    this.store.set(STORE.TOKEN, newToken, () => {
+    BROWSER_STORAGE.set(STORE.TOKEN, newToken, () => {
       const changes = {[STORE.TOKEN]: [oldToken, newToken]};
       $(this).trigger(EVENT.OPTS_CHANGE, changes);
       $token.val('');

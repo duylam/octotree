@@ -1,6 +1,5 @@
 class OptionsView {
-  constructor($dom, store) {
-    this.store = store;
+  constructor($dom) {
     this.$view = $dom.find('.octotree_optsview').submit(this._save.bind(this));
     this.$toggler = $dom.find('.octotree_opts').click(this._toggle.bind(this));
     this.elements = this.$view.find('[data-store]').toArray();
@@ -59,7 +58,7 @@ class OptionsView {
         chrome.runtime.sendMessage({type: 'requestPermissions', urls: urls}, (granted) => {
           if (!granted) {
             // Permissions not granted (by user or error), reset value
-            $ta.val(this.store.get(STORE[storeKey]));
+            $ta.val(BROWSER_STORAGE.get(STORE[storeKey]));
           }
           this._saveOptions();
         });
@@ -78,7 +77,7 @@ class OptionsView {
         const newValue = $elm.is(':checkbox') ? $elm.is(':checked') : $elm.val();
         if (value === newValue) return cb();
         changes[key] = [value, newValue];
-        this.store.set(key, newValue, cb);
+        BROWSER_STORAGE.set(key, newValue, cb);
       },
       () => {
         this._toggle(false);
@@ -96,7 +95,7 @@ class OptionsView {
         const $elm = $(elm);
         const key = STORE[$elm.data('store')];
 
-        this.store.get(key, (value) => {
+        BROWSER_STORAGE.get(key, (value) => {
           processFn($elm, key, value, () => cb());
         });
       },
