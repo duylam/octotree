@@ -1,7 +1,7 @@
 // Octotree needs to start as soon as the HTML document is loaded in order to give smooth
 // experience for users. So the event chrome.webNavigation.onCommitted is used for initializing
 chrome.webNavigation.onCommitted.addListener(initOctotree, {
-  url: [{hostEquals: '*'}] // '*' for supporting Github Enterprise
+  url: [{hostEquals: 'github.com'}]
 });
 
 chrome.runtime.onMessage.addListener((req, sender, sendRes) => {
